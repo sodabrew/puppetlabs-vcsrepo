@@ -320,13 +320,13 @@ branches
       context "when it's listed in 'git branch -a'" do
         it "should return true" do
           resource[:revision] = 'feature/foo'
-          provider.should be_local_branch_revision
+          provider.should be local_branch_revision
         end
       end
       context "when it's not listed in 'git branch -a'" do
         it "should return false" do
           resource[:revision] = 'feature/notexist'
-          provider.should_not be_local_branch_revision
+          provider.should_not be local_branch_revision
         end
       end
     end
@@ -334,13 +334,13 @@ branches
       context "when it's listed in 'git branch -a' with an 'origin/' prefix" do
         it "should return true" do
           resource[:revision] = 'only/remote'
-          provider.should be_remote_branch_revision
+          provider.should be remote_branch_revision
         end
       end
       context "when it's not listed in 'git branch -a' with an 'origin/' prefix" do
         it "should return false" do
           resource[:revision] = 'only/local'
-          provider.should_not be_remote_branch_revision
+          provider.should_not be remote_branch_revision
         end
       end
     end
@@ -366,14 +366,14 @@ branches
       it do
         provider.expects(:revision).returns('testrev')
         provider.expects(:latest).returns('testrev')
-        provider.latest?.should be_true
+        provider.latest?.should be true
       end
     end
     context 'when false' do
       it do
         provider.expects(:revision).returns('master')
         provider.expects(:latest).returns('testrev')
-        provider.latest?.should be_false
+        provider.latest?.should be false
       end
     end
   end
