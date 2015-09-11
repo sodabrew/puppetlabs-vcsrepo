@@ -70,6 +70,9 @@ Puppet::Type.type(:vcsrepo).provide(:git, :parent => Puppet::Provider::Vcsrepo) 
   # @param [String] desired The desired revision to which the repo should be
   #                         set.
   def revision=(desired)
+    # If ensure => latest, then we fetched in get_revision. For ensure => foo,
+    # fetch now because there's a mismatch between current and desired revision.
+    update_references unless @resource.value(:ensure) == :latest
     #just checkout tags and shas; fetch has already happened so they should be updated.
     checkout(desired)
     #branches require more work.
@@ -399,7 +402,9 @@ Puppet::Type.type(:vcsrepo).provide(:git, :parent => Puppet::Provider::Vcsrepo) 
   #                  date; otherwise returns the sha of the requested revision.
   def get_revision(rev = 'HEAD')
     if @resource.value(:source)
-      update_references
+      # Always fetch references when ensure => latest,
+      # by default fetch references only when requested to set revision
+      update_references if @resource.value(:ensure) == :latest
     else
       status = at_path { git_with_identity('status')}
       is_it_new = status =~ /Initial commit/
