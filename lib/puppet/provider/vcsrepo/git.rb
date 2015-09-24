@@ -169,11 +169,11 @@ Puppet::Type.type(:vcsrepo).provide(:git, :parent => Puppet::Provider::Vcsrepo) 
       at_path { git_with_identity('remote','update') }
     end
 
+    do_update
   end
 
   def update_references
     at_path do
-      update_remotes
       git_with_identity('fetch', @resource.value(:remote))
       git_with_identity('fetch', '--tags', @resource.value(:remote))
       update_owner_and_excludes
@@ -402,9 +402,9 @@ Puppet::Type.type(:vcsrepo).provide(:git, :parent => Puppet::Provider::Vcsrepo) 
   #                  date; otherwise returns the sha of the requested revision.
   def get_revision(rev = 'HEAD')
     if @resource.value(:source)
-      # Always fetch references when ensure => latest,
-      # by default fetch references only when requested to set revision
-      update_references if @resource.value(:ensure) == :latest
+      # Fetch references when ensure => latest, or when a remote changes,
+      # otherwise only fetch references when the revision is changed
+      update_references if update_remotes || @resource.value(:ensure) == :latest
     else
       status = at_path { git_with_identity('status')}
       is_it_new = status =~ /Initial commit/
